@@ -27,6 +27,10 @@ int main(int argc, char** argv)
   
   
   char index;
+  
+  //state index is char type
+  //output is bool type
+  //tansition condition is int type
   FSM<char, bool, int> machine;
   //Set 24 working states, 1 init state.
   machine.setState('0', false);
@@ -36,7 +40,8 @@ int main(int argc, char** argv)
     }
   machine.setState('x', true);
 
-  //23 states
+  //FSM setup
+  //Picture state diagram while doing this.
   machine.setTrans('0', 0, 'a');
   machine.setTrans('0', 1, 'a');
   for(index = 'a'; index <= 'w'; ++index)
@@ -76,6 +81,7 @@ int main(int argc, char** argv)
       
       for(int byte : test_stream)
 	{
+	  //Feed the machine
 	  machine.transit(byte);
 	  test_states.push_back(machine.getCurrState());
 	  test_outputs.push_back(machine.getCurrOutput());

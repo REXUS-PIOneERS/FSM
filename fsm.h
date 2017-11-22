@@ -7,9 +7,12 @@
 
 namespace fsm
 {
-  //_Ind --- state index type
-  //_Cond --- transition condition type
-  //_Out --- output type
+  /**_Ind --- state index type
+     _Cond --- transition condition type
+     _Out --- output type
+
+     All of 3 types must support '=' operator
+  */
   template<typename _Ind, typename _Out, typename _Cond>
   class FSM
   {
@@ -29,6 +32,13 @@ namespace fsm
   public:
     FSM(){};
     ~FSM(){};
+    /**
+       Set state index and output. If index exists, overwrite corresponding output. Will automatically set current state to this state implicitly.
+       @params
+       index
+       output
+       @return
+     */
     void setState(_Ind index, _Out output)
     {
       state_type state_tmp = std::make_pair(output, tran_type());
@@ -46,7 +56,19 @@ namespace fsm
       //Set current state to the latest inserted.
       _curr_state_index = index;
     }
-      
+
+
+    /**
+       Set the transition condition between states. If src_index and transition exists, overwrite corresponding dst_index.
+       @params
+       src_index: where transition arrow originates from.
+       dst_index: where transition arrow points to.
+       condition: transition condition.
+       @return
+       0: Successfully set
+       -1: src_index does not exist
+       -2: dst_index does not exist
+     */
     int setTrans(_Ind src_index, _Cond condition, _Ind dst_index)
     {
       //src_index does not exist
@@ -66,32 +88,59 @@ namespace fsm
 
       return 0;
     }
-    
+
+    /**
+       Feed the machine with an input. The machine will be at next state after this funtion returns.
+       @params
+       condition: transition condition.
+       @return
+       0: Successful transition.
+       -1: Transition condition of current state not found.
+     */
     int transit(_Cond condition)
     {
       state_type& curr_state = _states[_curr_state_index];
       tran_type& curr_tran = curr_state.second;
 
-    //Transition condition of current state is not found.
+      //Transition condition of current state is not found.
       if(curr_tran.find(condition) == curr_tran.end())
 	return -1;
-    //Transition condition of current state found.
+      //Transition condition of current state found.
 
       _curr_state_index = curr_tran[condition];
       return 0;
     }
-    
+
+    /**
+       Get current state
+       @params
+       @return
+       current state index.
+     */
     inline _Ind getCurrState() const
     {
       return _curr_state_index;
     }
-    
+
+    /**
+       Get current output.
+       @params
+       @return
+       current output.
+     */
     inline _Out getCurrOutput()
     {
       return _states[_curr_state_index].first;
     }
 
-      
+    /**
+       Set current state.
+       @params
+       index: state index
+       @return
+       true: successfully set
+       false: state index not found 
+     */
     bool setCurrState(_Ind index)
     {
       //index not found.
